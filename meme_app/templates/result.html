@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Memes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bgfade 2s;
+        }
+        @keyframes bgfade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .memes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .meme-card {
+            background: #fffbe7;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+            padding: 22px 18px 18px 18px;
+            border: 2px solid #ffe066;
+            max-width: 320px;
+            min-width: 260px;
+            text-align: center;
+            transition: box-shadow 0.3s, transform 0.3s;
+            animation: popin 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+            position: relative;
+        }
+        .meme-card:hover {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+            transform: scale(1.03);
+        }
+        @keyframes popin {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .meme-img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+            margin-bottom: 14px;
+        }
+        .caption-text {
+            font-size: 1.05rem;
+            color: #ff9100;
+            font-weight: 600;
+            margin-bottom: 12px;
+            min-height: 48px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #ff9100 0%, #ffd700 100%);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.12);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #ffd700 0%, #ff9100 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(255, 193, 7, 0.18);
+        }
+        .btn-outline-warning {
+            margin-top: 8px;
+        }
+        .share-btn {
+            background: none;
+            border: none;
+            color: #ff9100;
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: color 0.2s;
+        }
+        .share-btn:hover {
+            color: #ffd700;
+        }
+        .share-icons {
+            display: none;
+            margin-bottom: 10px;
+            margin-top: 5px;
+            justify-content: center;
+            gap: 10px;
+        }
+        .share-icons.active {
+            display: flex;
+        }
+        .share-icons a {
+            color: #fff;
+            font-size: 1.2rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .share-icons .wa { background: #25D366; }
+        .share-icons .tw { background: #1DA1F2; }
+        .share-icons .fb { background: #4267B2; }
+        .share-icons .ig { background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+        .share-icons a:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mt-4 mb-3" style="color:#ff9100;letter-spacing:1px;text-shadow:1px 2px 8px #fffbe7,0 2px 8px #ffd700;">
+            Your Memes, Your Mood 😎✨
+        </h2>
+        <div class="memes-grid">
+            {% for meme in memes %}
+            <div class="meme-card" onclick="showPopup('{{ meme.meme_url }}', `{{ meme.caption|escapejs }}`)">
+                <img src="{{ meme.meme_url }}" alt="Meme" class="meme-img">
+                <div class="caption-text">{{ meme.caption }}</div>
+                <a href="{{ meme.meme_url }}" download="meme.jpg" class="btn btn-primary w-100 mb-2">Download</a>
+                <button class="share-btn" onclick="event.stopPropagation();toggleShare(this)" title="Share">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <div class="share-icons">
+                    <a class="wa" href="https://wa.me/?text={{ meme.absolute_url }}" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a class="tw" href="https://twitter.com/intent/tweet?url={{ meme.absolute_url }}" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a class="ig" href="https://www.instagram.com/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a class="fb" href="https://www.facebook.com/sharer/sharer.php?u={{ meme.absolute_url }}" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'meme_home' %}" class="btn btn-outline-secondary">Create Another</a>
+        </div>
+        <!-- Popup Modal -->
+        <div id="memePopup" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;">
+            <div style="background:#fffbe7;border-radius:18px;max-width:95vw;max-height:90vh;padding:28px 18px 18px 18px;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;display:flex;flex-direction:column;align-items:center;">
+                <button onclick="closePopup()" style="position:absolute;top:10px;right:18px;background:none;border:none;font-size:2rem;color:#ff9100;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <img id="popupImg" src="" alt="Meme" style="max-width:80vw;max-height:60vh;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.10);margin-bottom:18px;">
+                <div id="popupCaption" style="font-size:1.2rem;color:#ff9100;font-weight:600;text-align:center;margin-bottom:10px;"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <script>
+        function toggleShare(btn) {
+            document.querySelectorAll('.share-icons').forEach(function(div) {
+                if (div !== btn.nextElementSibling) div.classList.remove('active');
+            });
+            btn.nextElementSibling.classList.toggle('active');
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.meme-card')) {
+                document.querySelectorAll('.share-icons').forEach(function(div) {
+                    div.classList.remove('active');
+                });
+            }
+        });
+
+        // Popup logic
+        function showPopup(imgUrl, caption) {
+            document.getElementById('popupImg').src = imgUrl;
+            document.getElementById('popupCaption').textContent = caption;
+            document.getElementById('memePopup').style.display = 'flex';
+        }
+        function closePopup() {
+            document.getElementById('memePopup').style.display = 'none';
+            document.getElementById('popupImg').src = '';
+            document.getElementById('popupCaption').textContent = '';
+        }
+        // Close popup on background click
+        document.getElementById('memePopup').addEventListener('click', function(e) {
+            if (e.target === this) closePopup();
+        });
+    </script>
+</body>
+</html>

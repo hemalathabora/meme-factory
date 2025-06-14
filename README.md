@@ -97,7 +97,7 @@ meme-factory/
 
 **Live Project** 👉 [Click to Open meme-factory](https://meme-factory-actc.onrender.com)
 
-
+**Future Scope**
 * 🔐 User accounts and meme galleries
 * 🧠 AI-generated meme captions
 * 📱 Responsive mobile UI
